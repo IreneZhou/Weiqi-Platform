@@ -5,7 +5,7 @@
 	<title>多人围棋对战平台</title>
 	<link href="./style.css" rel="stylesheet" type="text/css" />
 	<script src="./javascript.js" type="text/javascript"></script>
-	<script src="./socket.io/socket.io.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 	<div class="control">
@@ -19,14 +19,14 @@
 			<button id="chatBtn">发送</button>
 		</div>
 	</div>
+
 	<div class="content">
 		<div class="board blackRound" id="board"></div>
 	</div>
-	<div id="function">
 
+	<div id="function">
 		<label for="method1"><input type="radio" value="1" id="method1" name="method" checked="true"/>打谱模式</label>
 		<label for="method2"><input type="radio" value="2" id="method2" name="method"/>对战模式</label>
-
 		<button id="requestEnemy">请求在线对战队友</button>
 		<button id="reset">重置</button>
 		<button id="undo">后退</button>

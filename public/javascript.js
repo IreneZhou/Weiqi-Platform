@@ -119,7 +119,7 @@ window.onload = function(){
 	/*************** 联机对战 *******************/
 	var network = (function(){
 		var HOST = location.host;
-		var socket = null;
+		var socket = io();
 		var id = null;
 		var isConnect = false;
 		var step = 0;
@@ -178,7 +178,7 @@ window.onload = function(){
             },
 
 			//落子
-			sendAction: function(data){
+            sendAction: function(data){
 				action = false;
 				step ++;
 				socket.emit("action", data);
@@ -219,7 +219,7 @@ window.onload = function(){
 				socket.emit("rename", {
 					name: name
 				});
-			},
+			}
 		}
 	})();
 

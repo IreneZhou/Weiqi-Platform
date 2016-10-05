@@ -1,14 +1,14 @@
 {
-  "name": "aiweiqi",
-  "version": "1.0.0",
-  "description": "Online multi-player go(weiqi) play platform",
+  "name": "Weiqi-platform",
+  "version": "1.0.1",
+  "description": "Online multi-player Weiqi play platform",
   "main": "app.js",
   "directories": {
     "doc": "doc"
   },
   "dependencies": {
-    "express": "^2.5.1",
-    "socket.io": "^0.9.6"
+    "express": "^4.14.0",
+    "socket.io": "^1.4.8"
   },
   "devDependencies": {},
   "scripts": {
@@ -17,12 +17,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yutingzhao1991/aiweiqi.git"
+    "url": "https://github.com/IreneZhou/Weiqi-Platform"
   },
   "keywords": [
     "go",
     "weiqi",
     "game",
-    "multi-player"
+    "multi-player",
+    "platform"
   ]
 }

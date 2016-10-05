@@ -16,12 +16,13 @@ button:hover {
 }
 
 .content{
+	margin: 20px 0 0 20px;
+	display: inline-block;
 	background: url(./board.jpg);
 	width: 630px;
 	height: 631px;
-	margin: 20px auto;
-	filter: contrast(85%);
 }
+
 .board{
 	position: absolute;
 	width: 600px;
@@ -75,10 +76,9 @@ button:hover {
 }
 
 #function{
-	position: absolute;
-	right: 10px;
-	top: 20px;
 	width: 300px;
+	float: right;
+	margin-top: 20px;
 }
 
 #function > button {
@@ -99,9 +99,8 @@ button:hover {
 }
 
 .control{
-	position: absolute;
-	left: 20px;
-	top: 20px;
+	display: inline-block;
+	margin: 20px 0 0 20px;
 	width: 280px;
 }
 #log{

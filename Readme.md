@@ -11,6 +11,12 @@ npm start
 
 
 
+#### Technology
+
+`JavaScript`  `Node.js`  `Express`  `Socket.IO`
+
+
+
 #### Credit
 
 https://github.com/yutingzhao1991/weiqi 

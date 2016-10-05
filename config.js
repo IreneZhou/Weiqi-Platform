@@ -1,4 +1,4 @@
 exports.config = {
-    port: 8888
+    port: 3000
 };
 
