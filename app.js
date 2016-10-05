@@ -1,7 +1,3 @@
-/**
- * by yutingzhao 2012 8 18
- */
-
 var path = require('path');
 var express = require('express');
 var config = require('./config').config;

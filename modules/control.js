@@ -3,6 +3,7 @@ var socket = require("./socket");
 var io = null;
 var players = {};
 var waitingPlayer = null;
+
 function connectingDouble(black, white){
 	white.socket.emit("connectPlayer", {
 		id: black.id,
@@ -20,10 +21,12 @@ function connectingDouble(black, white){
 	white.action = false;
 	white.step = black.step = 0;
 }
+
 function sendMessage(player, type, data){
 	var socket = player.socket;
 	socket.emit(type, data);
 }
+
 function doAction(player, data){
 	if(player.action == false){
 		sendMessage(player, "notice", {
@@ -44,6 +47,7 @@ function doAction(player, data){
 		j: data.j
 	});
 }
+
 function addListener(){
 	io.sockets.on('connection', function (socket) {
 		socket.emit("create", {
@@ -111,4 +115,4 @@ function broad(type, data){
 exports.start = function(app){
 	io = socket.createSocket(app);
 	addListener();
-}
+};

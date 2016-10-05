@@ -1,22 +1,23 @@
 window.onload = function(){
-	//初始化棋盘
+
+	/************* 初始化棋盘 *****************/
 	var board = document.getElementById("board");
 	var log = document.getElementById("log");
 	var judgeFlag = 1;
 	var stepCount = 0;
 	var endFlag = false;
-	var method = 2; //0-程序员模式 1-小白模式 2-联机模式
+	var method = 1; // 1-小白模式 2-联机模式
 
 	var Unit = function(i, j){
 		this.dom = document.createElement("div");
 		this.dom.className = "unit";
 		this.flag = 0; //0为空 1为黑 2为白
-		this.life = 4;
+		this.liberty = 4;  // 4口气
 		if(i==0 || i==18){
-			this.life --;
+			this.liberty --;
 		}
 		if(j==0 || j==18){
-			this.life --;
+			this.liberty --;
 		}
 		this.i = i;
 		this.j = j;
@@ -40,6 +41,7 @@ window.onload = function(){
 		this.judgeFlag = 0;
 	};
 
+    /************** 基础动作 ****************/
 	Unit.prototype.addToBoard = function(){
 		board.appendChild(this.dom);
 	};
@@ -49,14 +51,44 @@ window.onload = function(){
 		this.dom.classList.remove("white", "black");
 	};
 
+    // undo
+    function UndoStack(self) {
+        this.stack = [];
+        this.self = self;
+    }
+
+    UndoStack.prototype.push = function(unit) {
+        this.stack.push(unit);
+    };
+
+    UndoStack.prototype.undo = function () {
+        if (this.stack.length > 0) {
+            var unit = this.stack.pop();
+            unit.removeFlag();
+            operateAround(unit, function(temp){  // 四周的棋子+1气
+                temp.liberty ++;
+            });
+            if (this.stack.length > 0) {
+                var last = this.stack[this.stack.length-1];
+                last.dom.classList.add("active");
+            }
+            changeRound();
+        } else {
+            addInfo("无路可退");
+            throw new Error("Already at oldest change");
+        }
+    };
+
+    var undostack = new UndoStack();
+
 	Unit.prototype.addWhiteFlag = function(){
 		var unit = document.getElementsByClassName("active");
 		if (unit.length > 0) {
 			unit[0].classList.remove("active");
 		}
-
 		this.flag = 2;
 		this.dom.classList.add('white', 'active');
+        undostack.push(this);
 	};
 
 	Unit.prototype.addBlackFlag = function(){
@@ -64,26 +96,27 @@ window.onload = function(){
 		if (unit.length > 0) {
 			unit[0].classList.remove("active");
 		}
-		var dom = this.dom;
 		this.flag = 1;
-		dom.classList.add('black', 'active');
+		this.dom.classList.add('black', 'active');
+        undostack.push(this);
 	};
 
 	Unit.prototype.reset = function(){
 		this.flag = 0;
 		this.dom.classList.remove("white", "black");
-		this.life = 4;
+		this.liberty = 4;
 		if(i==0 || i==18){
-			this.life --;
+			this.liberty --;
 		}
 		if(j==0 || j==18){
-			this.life --;
+			this.liberty --;
 		}
 	};
 
 	var map = [];
 
-	//网上联机对战部分
+
+	/*************** 联机对战 *******************/
 	var network = (function(){
 		var HOST = location.host;
 		var socket = null;
@@ -100,21 +133,58 @@ window.onload = function(){
 		});
 
 		return {
-			//下子
+            //socket创建
+            onCreate: function(callback){
+                socket.on('create', function(data){
+                    id = data.id;
+                    document.getElementById("playerName").innerHTML = "路人"+data.id;
+                    callback && callback(data);
+                });
+            },
+
+            //请求对手
+            request: function(name){
+                if(id == null){
+                    return;
+                }
+                step = 0;
+                socket.emit("request", {
+                    name: name
+                });
+            },
+
+            //连接上对手
+            onConnect: function(callback){
+                socket.on('connectPlayer', function(data){
+                    isConnect = true;
+                    if(data.color != "black"){
+                        addInfo("您是黑棋，请落子");
+                        action = true;
+                    }else{
+                        addInfo("对方黑棋，轮到对方落子");
+                    }
+                    callback && callback(data);
+                });
+            },
+
+            //socket是否已经创建
+            isCreate: function(){
+                return id;
+            },
+
+            //对手是否已经连线,
+            isConnect: function(){
+                return isConnect;
+            },
+
+			//落子
 			sendAction: function(data){
 				action = false;
 				step ++;
 				socket.emit("action", data);
 			},
-			//socket创建
-			onCreate: function(callback){
-				socket.on('create', function(data){
-					id = data.id;
-					document.getElementById("playerName").innerHTML = "路人"+data.id;
-					callback && callback(data);
-				});
-			},
-			//对手下子
+
+			//对手落子
 			onAction: function(callback){
 				socket.on('action', function(data){
 					if(data.id == id){
@@ -131,51 +201,25 @@ window.onload = function(){
 					callback && callback(data);
 				});
 			},
-			//连接上对手
-			onConnect: function(callback){
-				socket.on('connectPlayer', function(data){
-					isConnect = true;
-					if(data.color != "black"){
-						addInfo("您是黑棋，请落子");
-						action = true;
-					}else{
-						addInfo("对方黑棋，轮到对方落子");
-					}
-					callback && callback(data);
-				});
-			},
-			//请求对手
-			request: function(name){
-				if(id == null){
-					return;
-				}
-				step = 0;
-				socket.emit("request", {
-					name: name
-				});
-			},
-			//是否可以行走
+
+            //是否可以行走
 			isAction: function(){
 				return action;
 			},
-			//socket是否已经创建
-			isCreate: function(){
-                return id;
-			},
-			//对手是否已经连线,
-			isConnect: function(){
-				return isConnect;
-			},
+
+            // 聊天
 			chat: function(info){
 				socket.emit("chat", {
 					info: info
 				});
 			},
-			rename: function(name){
+
+            // 重命名
+            rename: function(name){
 				socket.emit("rename", {
 					name: name
 				});
-			}
+			},
 		}
 	})();
 
@@ -211,7 +255,7 @@ window.onload = function(){
 		changeRound();
 
 		operateAround(unit, function(temp){
-			temp.life --;
+			temp.liberty --;
 		});
 
 		var lifeFlag = false;
@@ -232,11 +276,10 @@ window.onload = function(){
 		}
 
 		if(!lifeFlag && !clearFlag){
-			//违规下法  不能自杀
 			addInfo("禁入点");
 			unit.removeFlag();
 			operateAround(unit, function(temp){
-				temp.life ++;
+				temp.liberty ++;
 			});
 			changeRound();
 			return;
@@ -283,13 +326,12 @@ window.onload = function(){
 		}
 	}
 
-
 	function isAliveStep(unit){
 		if(unit.judgeFlag == judgeFlag){
 			return false;
 		}
 		unit.judgeFlag = judgeFlag;
-		if(unit.life <= 0){
+		if(unit.liberty <= 0){
 			var aliveFlag = false;
 			operateAround(unit, function(t){
 				if(aliveFlag){
@@ -304,6 +346,7 @@ window.onload = function(){
 			return true;
 		}
 	}
+
 	function isAlive(unit){
 		if(unit.flag == 0){
 			return true;
@@ -324,10 +367,11 @@ window.onload = function(){
 
 		unit.removeFlag();
 		operateAround(unit, function(temp){
-			temp.life ++;
+			temp.liberty ++;
 		})
 
 	}
+
 	function removeAreaByPoint(unit){
 		if(unit.flag != 0){
 			judgeFlag++;
@@ -338,6 +382,7 @@ window.onload = function(){
 		return true;
 	}
 
+    // 返回上下左右的棋子
 	function getUpUnit(unit){
 		if(unit.j>0){
 			return map[unit.i][unit.j-1];
@@ -371,20 +416,49 @@ window.onload = function(){
 	}
 
 
-	//功能区
+    /******************************************/
+	/************** 功能区 *********************/
+    /*******************************************/
+
+    // 重置
     var reset = document.getElementById("reset");
     reset.addEventListener("click", function() {
-        judgeFlag = 1;
-        stepCount = 0;
-        endFlag = false;
-        for(var i=0; i<19; i++){
-            for(var j=0; j<19; j++){
-                map[i][j].reset();
+        if (method == 1) {
+            judgeFlag = 1;
+            stepCount = 0;
+            endFlag = false;
+            for(var i=0; i<19; i++){
+                for(var j=0; j<19; j++){
+                    map[i][j].reset();
+                }
             }
+            currentFlag = 1;
+            undostack.stack = [];
         }
-        currentFlag = 1;
+        else {
+            addInfo("当前模式下无法重置");
+        }
+
     });
 
+    // 撤回
+    var undo = document.getElementById("undo");
+    undo.addEventListener("click", function () {
+        if (method == 1) {
+            undostack.undo();
+        }
+        else {
+            addInfo("无法悔棋");
+        }
+    });
+
+    // 停一手
+    var pass = document.getElementById("pass");
+    pass.addEventListener("click", function () {
+        if (method == 1) {
+            changeRound();
+        }
+    });
 
 	//点击请求对战对手
     var enemy = document.getElementById("requestEnemy");
@@ -403,7 +477,7 @@ window.onload = function(){
             }
         }
         currentFlag = 1;
-        addInfo("请求已经发出，请等待!");
+        addInfo("请求已发出，请等待");
         var name = document.getElementById("playerName");
         network.request(name.innerHTML);
     });
@@ -414,28 +488,37 @@ window.onload = function(){
             addInfo("您正在多人对战中，该模式选择操作无效");
             return;
         }
+        document.getElementById("requestEnemy").style.display = "none";
+        document.getElementById("reset").style.display = "block";
+        document.getElementById("undo").style.display = "block";
+        document.getElementById("pass").style.display = "block";
         method = 1;
     });
 
     var method2 = document.getElementById("method2");
     method2.addEventListener("click", function () {
-       method = 2
+       method = 2;
+        document.getElementById("requestEnemy").style.display = "block";
+        document.getElementById("reset").style.display = "none";
+        document.getElementById("undo").style.display = "none";
+        document.getElementById("pass").style.display = "none";
     });
 
+    // 聊天
     var chatBtn = document.getElementById("chatBtn");
     chatBtn.addEventListener("click", function () {
-        var info = T.g("chatInput").value;
+		var info = document.getElementById("chatInput").value;
         if(info){
             network.chat(info);
         }
     });
 
+    // 修改名字
     var playerRename = document.getElementById("playerRename");
     playerRename.addEventListener("click", function () {
        var name = document.getElementById("playerName");
         network.rename(name.value)
     });
-
 
 	//联机对战事件监听
 	network.onAction(function(data){
@@ -447,6 +530,8 @@ window.onload = function(){
 	});
 
 	function addInfo(text){
-		log.innerHTML += T.encodeHTML(text) + "</br>"
+		// log.innerHTML += T.encodeHTML(text) + "</br>"
+		log.innerHTML += text + "</br>"
 	}
+
 };
