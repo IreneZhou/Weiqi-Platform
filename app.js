@@ -55,7 +55,6 @@ function doAction(player, data){
 
 function addListener(){
     io.sockets.on('connection', function (socket) {
-        console.log("one user is connecting");
         socket.emit("create", {
             id: socket.id
         });
@@ -88,6 +87,7 @@ function addListener(){
         socket.on('rename', function(data){
             if(players[socket.id]){
                 players[socket.id].name = data.name;
+                
             }
         });
         socket.on('chat', function(data){

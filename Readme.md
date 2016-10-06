@@ -1,4 +1,4 @@
-![preview](doc/preview.jpg) ![preview2](doc/preview2.jpg)
+![preview1](doc/preview1.jpg) ![preview2](doc/preview2.jpg)
 
 
 
@@ -25,7 +25,8 @@ https://github.com/yutingzhao1991/weiqi
 
 #### TODO
 
-1.  对战模式停一手
+1.  debug: undo没有恢复之前的提子
+2.  对战模式停一手
 2.  投子认负
 3.  确认设置昵称信息
 4.  （可选）标出手数

@@ -6,7 +6,7 @@ window.onload = function(){
 	var judgeFlag = 1;
 	var stepCount = 0;
 	var endFlag = false;
-	var method = 1; // 1-小白模式 2-联机模式
+	var method = 1; // 1-单机模式 2-联机模式
 
 	var Unit = function(i, j){
 		this.dom = document.createElement("div");
@@ -116,7 +116,8 @@ window.onload = function(){
 	var map = [];
 
 
-	/*************** 联机对战 *******************/
+	/*************** 事件动作 *******************/
+    // 联机
 	var network = (function(){
 		var HOST = location.host;
 		var socket = io();
@@ -129,6 +130,9 @@ window.onload = function(){
 			addInfo("服务器信息：" + data.info);
 		});
 		socket.on('chat', function(data){
+            if (!data.name) {
+                data.name = "匿名";
+            }
 			addInfo(data.name + "：" + data.info);
 		});
 
@@ -233,7 +237,7 @@ window.onload = function(){
 		map.push(temp);
 	}
 
-	//事件 动作
+	// 落子
 	var currentFlag = 1;//当前下子的颜色
 	function unitOnClick(unit, e, callback){
 		if(endFlag){
@@ -482,6 +486,7 @@ window.onload = function(){
         network.request(name.innerHTML);
     });
 
+    // 修改对战模式
     var method1 = document.getElementById("method1");
     method1.addEventListener("click", function () {
         if(network.isConnect()){
@@ -517,7 +522,8 @@ window.onload = function(){
     var playerRename = document.getElementById("playerRename");
     playerRename.addEventListener("click", function () {
        var name = document.getElementById("playerName");
-        network.rename(name.value)
+        network.rename(name.value);
+        addInfo("您已更名为: "+name.value);
     });
 
 	//联机对战事件监听
@@ -529,9 +535,9 @@ window.onload = function(){
 		addInfo("已经连接上对手" + data.name);
 	});
 
+    // 发布信息
 	function addInfo(text){
 		// log.innerHTML += T.encodeHTML(text) + "</br>"
 		log.innerHTML += text + "</br>"
 	}
-
 };
