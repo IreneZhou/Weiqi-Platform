@@ -1,0 +1,191 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+body{
+    margin: 0;
+    padding: 0;
+    background: #E3D9CF url(./background.png) fixed;
+    font-family: Verdana, Arial,Helvetica, sans-serif;
+    font-size: 13px;
+}
+
+button:hover {
+    pointer: cursor;
+}
+
+.content{
+    margin: 20px 0 0 20px;
+    display: inline-block;
+    background: url(./board.jpg);
+    width: 630px;
+    height: 631px;
+}
+
+.board{
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    margin-top: 15px;
+    margin-left: 15px;
+}
+.unit{
+    width: 31.5px;
+    height: 31.5px;
+    float: left;
+    margin: 0;
+    padding: 0;
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+.whiteRound .unit:hover {
+    background: #FFF;
+    box-shadow: 1px 1px 1px #404040 , inset -3px -3px 5px gray;
+    opacity: .6;
+}
+.blackRound .unit:hover {
+    background: #000;
+    box-shadow: 1px 1px 1px #404040;
+    background-image: -webkit-radial-gradient(40% 40%, circle closest-corner, #404040 0%, transparent 90%);
+    opacity: .6;
+}
+.unit.white{
+    background: #FFF;
+    border-radius: 50%;
+    box-shadow: 1px 1px 1px #404040 , inset -3px -3px 5px gray;
+}
+.unit.black {
+    background: #000;
+    box-shadow: 1px 1px 1px #404040;
+    background-image: -webkit-radial-gradient(40% 40%, circle closest-corner, #404040 0%, transparent 90%);
+}
+.unit.white.active{
+    border: 2px solid black;
+}
+.unit.black.active{
+    border: 2px solid white;
+}
+.whiteRound .unit.black:hover {
+    background: #888;
+    opacity: .6;
+}
+.blackRound .unit.white:hover {
+    background: #AAA;
+    opacity: .6;
+}
+
+#function{
+    width: 300px;
+    float: right;
+    margin-top: 20px;
+}
+
+#function > button {
+    border: 3px solid black;
+    background: transparent;
+    width: 250px;
+    height: 45px;
+    font-size: 14px;
+    letter-spacing: 4px;
+    outline: none;
+    margin: 30px 0 0 20px;
+}
+
+#function > button:hover {
+    background: black;
+    color: white;
+
+}
+
+.control{
+    display: inline-block;
+    margin: 20px 0 0 20px;
+    width: 280px;
+}
+#log{
+    padding: 5px 8px;
+    width: 280px;
+    height: 550px;
+    background: #fff;
+    font-size: 12px;
+    line-height: 20px;
+    overflow: auto;
+    margin: 10px 0;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+#chatInput {
+    resize: none;
+    outline: none;
+    height: 30px;
+    width: 220px;
+    padding: 5px;
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+}
+
+button#chatBtn {
+    vertical-align: top;
+    height: 30px;
+    width: 55px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #0AA8E3;
+    text-align: center;
+    letter-spacing: 2px;
+    transition: .2s ease-out;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+    outline: none;
+}
+
+button#chatBtn:hover {
+    box-shadow: 0 4px 9px 0 rgba(0,0,0,0.2),0 2px 10px 0 rgba(0,0,0,0.2);
+}
+
+input#playerName {
+    resize: none;
+    outline: none;
+    height: 30px;
+    width: 190px;
+    padding: 5px 8px;
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.12),0 2px 10px 0 rgba(0,0,0,0.10);
+}
+
+button#playerRename {
+    vertical-align: top;
+    height: 30px;
+    width: 85px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #26a69a;
+    text-align: center;
+    letter-spacing: 2px;
+    transition: .2s ease-out;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+    outline: none;
+}
+
+
+button#playerRename:hover {
+    box-shadow: 0 4px 9px 0 rgba(0,0,0,0.2),0 2px 10px 0 rgba(0,0,0,0.2);
+}
+
+button#requestEnemy{
+    display: none;
+}
+
+input#method1, input#method2 {
+    margin-right: 10px;
+}
+
+label {
+    font-size: 15px;
+    margin-left: 20px;
+}
+
