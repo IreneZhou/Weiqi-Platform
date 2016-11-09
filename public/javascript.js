@@ -130,7 +130,7 @@ window.onload = function(){
 		});
 		socket.on('chat', function(data){
             if (!data.name) {
-                data.name = "匿名";
+                data.name = "anonym";
             }
 			addInfo(data.name + "：" + data.info);
 		});
@@ -161,10 +161,10 @@ window.onload = function(){
                 socket.on('connectPlayer', function(data){
                     isConnect = true;
                     if(data.color != "black"){
-                        addInfo("您是黑棋，请落子");
+                        addInfo("You are black, it's your turn.");
                         action = true;
                     }else{
-                        addInfo("对方黑棋，轮到对方落子");
+                        addInfo("Your opponent is black, please wait.");
                     }
                     callback && callback(data);
                 });
@@ -481,7 +481,7 @@ window.onload = function(){
             }
         }
         currentFlag = 1;
-        addInfo("请求已发出，请等待");
+        addInfo("Request has sent");
         var name = document.getElementById("playerName");
         network.request(name.innerHTML);
     });
@@ -523,7 +523,7 @@ window.onload = function(){
     playerRename.addEventListener("click", function () {
        var name = document.getElementById("playerName");
         network.rename(name.value);
-        addInfo("您已更名为: "+name.value);
+        addInfo("You set your nickname: "+name.value);
     });
 
 	//联机对战事件监听
@@ -532,7 +532,7 @@ window.onload = function(){
 	});
 	network.onCreate();
 	network.onConnect(function(data){
-		addInfo("已经连接上对手" + data.name);
+		addInfo("Connect to " + data.name);
 	});
 
     // 发布信息

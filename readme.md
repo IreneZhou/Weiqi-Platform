@@ -7,8 +7,8 @@
 #### Run:
 
 ```
-npm install
-npm start
+$npm install
+$electron main.js
 ```
 
 
@@ -21,4 +21,4 @@ https://github.com/IreneZhou/Weiqi-Platform/tree/master
 
 #### Technologies:
 
-`Electron`  `Node.js`  `Socket.io`  `HTML`  `CSS`  `JavaScript`
+`Electron`  `Node.js`  `Socket.io`  `HTML`  `CSS`  `JavaScript` `Express`

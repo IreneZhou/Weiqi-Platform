@@ -1,6 +1,11 @@
+var express = require('express');
+var app = express();
 var socket = require('socket.io');
-
+var passport = require('passport');
 var io = socket.listen(3000);
+
+
+
 
 var players = {};
 

@@ -20,7 +20,8 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
     // 创建浏览器窗口。
-    mainWindow = new BrowserWindow({fullscreen:true});
+    //mainWindow = new BrowserWindow({fullscreen:true});
+    mainWindow = new BrowserWindow();
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
     // mainWindow.openDevTools();
