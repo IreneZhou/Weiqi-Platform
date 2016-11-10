@@ -6,7 +6,7 @@ window.onload = function(){
 	var judgeFlag = 1;
 	var stepCount = 0;
 	var endFlag = false;
-	var method = 1; // 1-单机模式 2-联机模式
+	var method = 2; // 1-单机模式 2-联机模式
 
 	var Unit = function(i, j){
 		this.dom = document.createElement("div");
@@ -42,7 +42,7 @@ window.onload = function(){
 	};
 
 
-    /************** 基础动作 ****************/
+	/************** 基础动作 ****************/
 	Unit.prototype.addToBoard = function(){
 		board.appendChild(this.dom);
 	};
@@ -52,36 +52,36 @@ window.onload = function(){
 		this.dom.classList.remove("white", "black");
 	};
 
-    // undo
-    function UndoStack(self) {
-        this.stack = [];
-        this.self = self;
-    }
-
-    UndoStack.prototype.push = function(unit) {
-        this.stack.push(unit);
-    };
-
-    UndoStack.prototype.undo = function () {
-        if (this.stack.length > 0) {
-            var unit = this.stack.pop();
-            unit.removeFlag();
-            operateAround(unit, function(temp){  // 四周的棋子+1气
-                temp.liberty ++;
-            });
-            if (this.stack.length > 0) {
-                var last = this.stack[this.stack.length-1];
-                last.dom.classList.add("active");
-            }
-            changeRound();
-        } else {
-            addInfo("无路可退");
-            throw new Error("Already at oldest change");
-        }
-    };
-
-    var undostack = new UndoStack();
-
+	// undo
+	// function UndoStack(self) {
+	// 	this.stack = [];
+	// 	this.self = self;
+	// }
+    //
+	// UndoStack.prototype.push = function(unit) {
+	// 	this.stack.push(unit);
+	// };
+    //
+	// UndoStack.prototype.undo = function () {
+	// 	if (this.stack.length > 0) {
+	// 		var unit = this.stack.pop();
+	// 		unit.removeFlag();
+	// 		operateAround(unit, function(temp){  // 四周的棋子+1气
+	// 			temp.liberty ++;
+	// 		});
+	// 		if (this.stack.length > 0) {
+	// 			var last = this.stack[this.stack.length-1];
+	// 			last.dom.classList.add("active");
+	// 		}
+	// 		changeRound();
+	// 	} else {
+	// 		addInfo("无路可退");
+	// 		throw new Error("Already at oldest change");
+	// 	}
+	// };
+    //
+	// var undostack = new UndoStack();
+    //
 	Unit.prototype.addWhiteFlag = function(){
 		var unit = document.getElementsByClassName("active");
 		if (unit.length > 0) {
@@ -89,7 +89,7 @@ window.onload = function(){
 		}
 		this.flag = 2;
 		this.dom.classList.add('white', 'active');
-        undostack.push(this);
+		// undostack.push(this);
 	};
 
 	Unit.prototype.addBlackFlag = function(){
@@ -99,132 +99,132 @@ window.onload = function(){
 		}
 		this.flag = 1;
 		this.dom.classList.add('black', 'active');
-        undostack.push(this);
+		// undostack.push(this);
 	};
 
-	Unit.prototype.reset = function(){
-		this.flag = 0;
-		this.dom.classList.remove("white", "black");
-		this.liberty = 4;
-		if(i==0 || i==18){
-			this.liberty --;
-		}
-		if(j==0 || j==18){
-			this.liberty --;
-		}
-	};
+	// Unit.prototype.reset = function(){
+	// 	this.flag = 0;
+	// 	this.dom.classList.remove("white", "black");
+	// 	this.liberty = 4;
+	// 	if(i==0 || i==18){
+	// 		this.liberty --;
+	// 	}
+	// 	if(j==0 || j==18){
+	// 		this.liberty --;
+	// 	}
+	// };
 
 	var map = [];
 
 
 	/*************** 事件动作 *******************/
-    // 联机
+		// 联机
 	var network = (function(){
-		var socket = require('socket.io-client')('http://localhost:3000');
-		var id = null;
-		var isConnect = false;
-		var step = 0;
-		var action = false;
-		socket.on('notice', function(data){
-			addInfo("服务器信息：" + data.info);
-		});
-		socket.on('chat', function(data){
-            if (!data.name) {
-                data.name = "anonym";
-            }
-			addInfo(data.name + "：" + data.info);
-		});
+			var socket = require('socket.io-client')('http://localhost:3000');
+			var id = null;
+			var isConnect = false;
+			var step = 0;
+			var action = false;
+			socket.on('notice', function(data){
+				addInfo("服务器信息：" + data.info);
+			});
+			socket.on('chat', function(data){
+				if (!data.name) {
+					data.name = "anonym";
+				}
+				addInfo(data.name + "：" + data.info);
+			});
 
-		return {
-            //socket创建
-            onCreate: function(callback){
-                socket.on('create', function(data){
-                    id = data.id;
-                    document.getElementById("playerName").innerHTML = "路人"+data.id;
-                    callback && callback(data);
-                });
-            },
+			return {
+				//socket创建
+				onCreate: function(callback){
+					socket.on('create', function(data){
+						id = data.id;
+						document.getElementById("playerName").innerHTML = "路人"+data.id;
+						callback && callback(data);
+					});
+				},
 
-            //请求对手
-            request: function(name){
-                if(id == null){
-                    return;
-                }
-                step = 0;
-                socket.emit("request", {
-                    name: name
-                });
-            },
-
-            //连接上对手
-            onConnect: function(callback){
-                socket.on('connectPlayer', function(data){
-                    isConnect = true;
-                    if(data.color != "black"){
-                        addInfo("You are black, it's your turn.");
-                        action = true;
-                    }else{
-                        addInfo("Your opponent is black, please wait.");
-                    }
-                    callback && callback(data);
-                });
-            },
-
-            //socket是否已经创建
-            isCreate: function(){
-                return id;
-            },
-
-            //对手是否已经连线,
-            isConnect: function(){
-                return isConnect;
-            },
-
-			//落子
-            sendAction: function(data){
-				action = false;
-				step ++;
-				socket.emit("action", data);
-			},
-
-			//对手落子
-			onAction: function(callback){
-				socket.on('action', function(data){
-					if(data.id == id){
-						//自己的步骤
+				//请求对手
+				request: function(name){
+					if(id == null){
 						return;
 					}
-					if(step+1 != data.step){
-						//服务器出现了数据错误同步
-						addInfo("出现数据丢失 sorry");
-						return;
-					}
+					step = 0;
+					socket.emit("request", {
+						name: name
+					});
+				},
+
+				//连接上对手
+				onConnect: function(callback){
+					socket.on('connectPlayer', function(data){
+						isConnect = true;
+						if(data.color != "black"){
+							addInfo("You are black, it's your turn.");
+							action = true;
+						}else{
+							addInfo("Your opponent is black, please wait.");
+						}
+						callback && callback(data);
+					});
+				},
+
+				//socket是否已经创建
+				isCreate: function(){
+					return id;
+				},
+
+				//对手是否已经连线,
+				isConnect: function(){
+					return isConnect;
+				},
+
+				//落子
+				sendAction: function(data){
+					action = false;
 					step ++;
-					action = true;
-					callback && callback(data);
-				});
-			},
+					socket.emit("action", data);
+				},
 
-            //是否可以行走
-			isAction: function(){
-				return action;
-			},
+				//对手落子
+				onAction: function(callback){
+					socket.on('action', function(data){
+						if(data.id == id){
+							//自己的步骤
+							return;
+						}
+						if(step+1 != data.step){
+							//服务器出现了数据错误同步
+							addInfo("出现数据丢失 sorry");
+							return;
+						}
+						step ++;
+						action = true;
+						callback && callback(data);
+					});
+				},
 
-            // 聊天
-			chat: function(info){
-				socket.emit("chat", {
-					info: info
-				});
-			},
+				//是否可以行走
+				isAction: function(){
+					return action;
+				},
 
-            // 重命名
-            rename: function(name){
-				socket.emit("rename", {
-					name: name
-				});
+				// 聊天
+				chat: function(info){
+					socket.emit("chat", {
+						info: info
+					});
+				},
+
+				// 重命名
+				rename: function(name){
+					socket.emit("rename", {
+						name: name
+					});
+				}
 			}
-		}
-	})();
+		})();
 
 	for(var i=0; i<19; i++){
 		var temp = [], t;
@@ -298,13 +298,13 @@ window.onload = function(){
 	function changeRound(){
 		if(currentFlag == 1){
 			currentFlag = 2;
-            board.classList.add("whiteRound");
-            board.classList.remove("blackRound");
+			board.classList.add("whiteRound");
+			board.classList.remove("blackRound");
 		}
-        else {
+		else {
 			currentFlag = 1;
-            board.classList.remove("whiteRound");
-            board.classList.add("blackRound");
+			board.classList.remove("whiteRound");
+			board.classList.add("blackRound");
 		}
 	}
 
@@ -330,7 +330,7 @@ window.onload = function(){
 		}
 	}
 
-    // 判断合法走法
+	// 判断合法走法
 	function isAliveStep(unit){
 		if(unit.judgeFlag == judgeFlag){
 			return false;
@@ -360,7 +360,7 @@ window.onload = function(){
 		return isAliveStep(unit);
 	}
 
-    // 提子
+	// 提子
 	function removeAreaByPointStep(unit){
 		unit.judgeFlag = judgeFlag;
 		operateAround(unit, function(t){
@@ -388,7 +388,7 @@ window.onload = function(){
 		return true;
 	}
 
-    // 返回上下左右的棋子状况
+	// 返回上下左右的棋子状况
 	function getUpUnit(unit){
 		if(unit.j>0){
 			return map[unit.i][unit.j-1];
@@ -423,108 +423,107 @@ window.onload = function(){
 
 
 	/************** 功能区 *********************/
+		// 重置
+	// var reset = document.getElementById("reset");
+	// reset.addEventListener("click", function() {
+	// 	if (method == 1) {
+	// 		judgeFlag = 1;
+	// 		stepCount = 0;
+	// 		endFlag = false;
+	// 		for(var i=0; i<19; i++){
+	// 			for(var j=0; j<19; j++){
+	// 				map[i][j].reset();
+	// 			}
+	// 		}
+	// 		currentFlag = 1;
+	// 		undostack.stack = [];
+	// 	}
+	// 	else {
+	// 		addInfo("当前模式下无法重置");
+	// 	}
+	//
+	// });
 
-    // 重置
-    var reset = document.getElementById("reset");
-    reset.addEventListener("click", function() {
-        if (method == 1) {
-            judgeFlag = 1;
-            stepCount = 0;
-            endFlag = false;
-            for(var i=0; i<19; i++){
-                for(var j=0; j<19; j++){
-                    map[i][j].reset();
-                }
-            }
-            currentFlag = 1;
-            undostack.stack = [];
-        }
-        else {
-            addInfo("当前模式下无法重置");
-        }
+	// 撤回
+	// var undo = document.getElementById("undo");
+	// undo.addEventListener("click", function () {
+	// 	if (method == 1) {
+	// 		undostack.undo();
+	// 	}
+	// 	else {
+	// 		addInfo("无法悔棋");
+	// 	}
+	// });
 
-    });
-
-    // 撤回
-    var undo = document.getElementById("undo");
-    undo.addEventListener("click", function () {
-        if (method == 1) {
-            undostack.undo();
-        }
-        else {
-            addInfo("无法悔棋");
-        }
-    });
-
-    // 停一手
-    var pass = document.getElementById("pass");
-    pass.addEventListener("click", function () {
-        if (method == 1) {
-            changeRound();
-        }
-    });
+	// 停一手
+	// var pass = document.getElementById("pass");
+	// pass.addEventListener("click", function () {
+	// 	if (method == 1) {
+	// 		changeRound();
+	// 	}
+	// });
 
 	//点击请求对战对手
-    var enemy = document.getElementById("requestEnemy");
-    enemy.addEventListener("click", function () {
-        if(method != 2){
-            addInfo("请选择多人对战模式");
-            return ;
-        }
-        if(!network.isCreate()){
-            addInfo("还未成功连接上服务器，请稍后再试！");
-            return ;
-        }
-        for(var i=0; i<19; i++){
-            for(var j=0; j<19; j++){
-                map[i][j].reset();
-            }
-        }
-        currentFlag = 1;
-        addInfo("Request has sent");
-        var name = document.getElementById("playerName");
-        network.request(name.innerHTML);
-    });
+	var enemy = document.getElementById("requestEnemy");
+	enemy.addEventListener("click", function () {
+		// if(method != 2){
+		// 	addInfo("请选择多人对战模式");
+		// 	return ;
+		// }
+		if(!network.isCreate()){
+			addInfo("还未成功连接上服务器，请稍后再试！");
+			return ;
+		}
+		// for(var i=0; i<19; i++){
+		// 	for(var j=0; j<19; j++){
+		// 		map[i][j].reset();
+		// 	}
+		// }
+		currentFlag = 1;
+		addInfo("Request has sent");
+		var name = document.getElementById("playerName");
+		network.request(name.innerHTML);
+	});
 
-    // 修改对战模式
-    var method1 = document.getElementById("method1");
-    method1.addEventListener("click", function () {
-        if(network.isConnect()){
-            addInfo("您正在多人对战中，该模式选择操作无效");
-            return;
-        }
-        document.getElementById("requestEnemy").style.display = "none";
-        document.getElementById("reset").style.display = "block";
-        document.getElementById("undo").style.display = "block";
-        document.getElementById("pass").style.display = "block";
-        method = 1;
-    });
+	// 修改对战模式
+	// var method1 = document.getElementById("method1");
+	// method1.addEventListener("click", function () {
+	// 	if(network.isConnect()){
+	// 		addInfo("您正在多人对战中，该模式选择操作无效");
+	// 		return;
+	// 	}
+	// 	document.getElementById("requestEnemy").style.display = "none";
+	// 	document.getElementById("reset").style.display = "block";
+	// 	document.getElementById("undo").style.display = "block";
+	// 	document.getElementById("pass").style.display = "block";
+	// 	method = 1;
+	// });
+    //
+	// var method2 = document.getElementById("method2");
+	// method2.addEventListener("click", function () {
+	// 	method = 2;
+	// 	document.getElementById("requestEnemy").style.display = "block";
+	// 	document.getElementById("reset").style.display = "none";
+	// 	document.getElementById("undo").style.display = "none";
+	// 	document.getElementById("pass").style.display = "none";
+	// });
 
-    var method2 = document.getElementById("method2");
-    method2.addEventListener("click", function () {
-       method = 2;
-        document.getElementById("requestEnemy").style.display = "block";
-        document.getElementById("reset").style.display = "none";
-        document.getElementById("undo").style.display = "none";
-        document.getElementById("pass").style.display = "none";
-    });
-
-    // 聊天
-    var chatBtn = document.getElementById("chatBtn");
-    chatBtn.addEventListener("click", function () {
+	// 聊天
+	var chatBtn = document.getElementById("chatBtn");
+	chatBtn.addEventListener("click", function () {
 		var info = document.getElementById("chatInput").value;
-        if(info){
-            network.chat(info);
-        }
-    });
+		if(info){
+			network.chat(info);
+		}
+	});
 
-    // 修改名字
-    var playerRename = document.getElementById("playerRename");
-    playerRename.addEventListener("click", function () {
-       var name = document.getElementById("playerName");
-        network.rename(name.value);
-        addInfo("You set your nickname: "+name.value);
-    });
+	// 修改名字
+	var playerRename = document.getElementById("playerRename");
+	playerRename.addEventListener("click", function () {
+		var name = document.getElementById("playerName");
+		network.rename(name.value);
+		addInfo("You set your nickname: "+name.value);
+	});
 
 	//联机对战事件监听
 	network.onAction(function(data){
@@ -535,7 +534,7 @@ window.onload = function(){
 		addInfo("Connect to " + data.name);
 	});
 
-    // 发布信息
+	// 发布信息
 	function addInfo(text){
 		// log.innerHTML += T.encodeHTML(text) + "</br>"
 		log.innerHTML += text + "</br>"

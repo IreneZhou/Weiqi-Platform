@@ -9,7 +9,6 @@ control.start(app);
 // window 会被自动地关闭
 var mainWindow = null;
 
-// 当所有窗口被关闭了，退出。
 app.on('window-all-closed', function() {
     // 在 OS X 上，通常用户在明确地按下 Cmd + Q 之前
     // 应用会保持活动状态
@@ -20,11 +19,9 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
     // 创建浏览器窗口。
-    //mainWindow = new BrowserWindow({fullscreen:true});
-    mainWindow = new BrowserWindow();
+    mainWindow = new BrowserWindow({width: 1000, height: 720});
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
-    // mainWindow.openDevTools();
 
     mainWindow.on('closed', function() {
         mainWindow = null;
