@@ -23,18 +23,19 @@ window.onload = function(){
 		this.j = j;
 		var u = this;
 		this.dom.addEventListener("click", function(e) {
-			if (method == 2) {
+			// if (method == 2) {
 				if (network.isAction()) {
 					unitOnClick(u, e);
 					network.sendAction({
 						i: u.i,
 						j: u.j
 					});
-				} else {
-					addInfo("还未到你落子或者还没有连接到对手，请等待");
+				} else if (!network.isConnect()){}
+				else {
+					addInfo("It's not your turn.");
 				}
 				return;
-			}
+			// }
 			unitOnClick(u, e);
 
 		});
@@ -57,11 +58,11 @@ window.onload = function(){
 	// 	this.stack = [];
 	// 	this.self = self;
 	// }
-    //
+	//
 	// UndoStack.prototype.push = function(unit) {
 	// 	this.stack.push(unit);
 	// };
-    //
+	//
 	// UndoStack.prototype.undo = function () {
 	// 	if (this.stack.length > 0) {
 	// 		var unit = this.stack.pop();
@@ -79,9 +80,9 @@ window.onload = function(){
 	// 		throw new Error("Already at oldest change");
 	// 	}
 	// };
-    //
+	//
 	// var undostack = new UndoStack();
-    //
+	//
 	Unit.prototype.addWhiteFlag = function(){
 		var unit = document.getElementsByClassName("active");
 		if (unit.length > 0) {
@@ -102,17 +103,17 @@ window.onload = function(){
 		// undostack.push(this);
 	};
 
-	// Unit.prototype.reset = function(){
-	// 	this.flag = 0;
-	// 	this.dom.classList.remove("white", "black");
-	// 	this.liberty = 4;
-	// 	if(i==0 || i==18){
-	// 		this.liberty --;
-	// 	}
-	// 	if(j==0 || j==18){
-	// 		this.liberty --;
-	// 	}
-	// };
+	Unit.prototype.reset = function(){
+		this.flag = 0;
+		this.dom.classList.remove("white", "black");
+		this.liberty = 4;
+		if(i==0 || i==18){
+			this.liberty --;
+		}
+		if(j==0 || j==18){
+			this.liberty --;
+		}
+	};
 
 	var map = [];
 
@@ -120,7 +121,7 @@ window.onload = function(){
 	/*************** 事件动作 *******************/
 		// 联机
 	var network = (function(){
-			var socket = require('socket.io-client')('http://localhost:3000');
+			var socket = require('socket.io-client')('http://localhost:8080');
 			var id = null;
 			var isConnect = false;
 			var step = 0;
@@ -424,46 +425,41 @@ window.onload = function(){
 
 	/************** 功能区 *********************/
 		// 重置
-	// var reset = document.getElementById("reset");
-	// reset.addEventListener("click", function() {
-	// 	if (method == 1) {
-	// 		judgeFlag = 1;
-	// 		stepCount = 0;
-	// 		endFlag = false;
-	// 		for(var i=0; i<19; i++){
-	// 			for(var j=0; j<19; j++){
-	// 				map[i][j].reset();
-	// 			}
-	// 		}
-	// 		currentFlag = 1;
-	// 		undostack.stack = [];
-	// 	}
-	// 	else {
-	// 		addInfo("当前模式下无法重置");
-	// 	}
-	//
-	// });
+		// var reset = document.getElementById("reset");
+		// reset.addEventListener("click", function() {
+		// 	if (method == 1) {
+		// 		judgeFlag = 1;
+		// 		stepCount = 0;
+		// 		endFlag = false;
+		// 		for(var i=0; i<19; i++){
+		// 			for(var j=0; j<19; j++){
+		// 				map[i][j].reset();
+		// 			}
+		// 		}
+		// 		currentFlag = 1;
+		// 		undostack.stack = [];
+		// 	}
+		// 	else {
+		// 		addInfo("当前模式下无法重置");
+		// 	}
+		//
+		// });
 
-	// 撤回
-	// var undo = document.getElementById("undo");
-	// undo.addEventListener("click", function () {
-	// 	if (method == 1) {
-	// 		undostack.undo();
-	// 	}
-	// 	else {
-	// 		addInfo("无法悔棋");
-	// 	}
-	// });
+		// 撤回
+		// var undo = document.getElementById("undo");
+		// undo.addEventListener("click", function () {
+		// 	if (method == 1) {
+		// 		undostack.undo();
+		// 	}
+		// 	else {
+		// 		addInfo("无法悔棋");
+		// 	}
+		// });
 
-	// 停一手
-	// var pass = document.getElementById("pass");
-	// pass.addEventListener("click", function () {
-	// 	if (method == 1) {
-	// 		changeRound();
-	// 	}
-	// });
+		// 停一手
 
-	//点击请求对战对手
+
+		//点击请求对战对手
 	var enemy = document.getElementById("requestEnemy");
 	enemy.addEventListener("click", function () {
 		// if(method != 2){
@@ -474,11 +470,11 @@ window.onload = function(){
 			addInfo("还未成功连接上服务器，请稍后再试！");
 			return ;
 		}
-		// for(var i=0; i<19; i++){
-		// 	for(var j=0; j<19; j++){
-		// 		map[i][j].reset();
-		// 	}
-		// }
+		for(var i=0; i<19; i++){
+			for(var j=0; j<19; j++){
+				map[i][j].reset();
+			}
+		}
 		currentFlag = 1;
 		addInfo("Request has sent");
 		var name = document.getElementById("playerName");
@@ -498,7 +494,7 @@ window.onload = function(){
 	// 	document.getElementById("pass").style.display = "block";
 	// 	method = 1;
 	// });
-    //
+	//
 	// var method2 = document.getElementById("method2");
 	// method2.addEventListener("click", function () {
 	// 	method = 2;
